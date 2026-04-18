@@ -1,7 +1,9 @@
 package com.example.authdemo.controller;
 
-import com.example.authdemo.entity.UserProfile;
+import com.example.authdemo.model.UserProfileResponse;
+import com.example.authdemo.model.UserProfileUpdateRequest;
 import com.example.authdemo.service.UserProfileService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,14 +22,14 @@ public class UserProfileController {
   private final UserProfileService profileService;
 
   @GetMapping
-  public ResponseEntity<UserProfile> getProfile(@AuthenticationPrincipal UserDetails userDetails) {
+  public ResponseEntity<UserProfileResponse> getProfile(@AuthenticationPrincipal UserDetails userDetails) {
     return ResponseEntity.ok(profileService.getProfile(userDetails.getUsername()));
   }
 
   @PutMapping
-  public ResponseEntity<UserProfile> updateProfile(
+  public ResponseEntity<UserProfileResponse> updateProfile(
       @AuthenticationPrincipal UserDetails userDetails,
-      @RequestBody UserProfile profile
+      @Valid @RequestBody UserProfileUpdateRequest profile
   ) {
     return ResponseEntity.ok(profileService.updateProfile(userDetails.getUsername(), profile));
   }

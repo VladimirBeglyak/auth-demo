@@ -3,6 +3,8 @@ package com.example.authdemo.service;
 import com.example.authdemo.entity.User;
 import com.example.authdemo.entity.UserProfile;
 import com.example.authdemo.lock.LockStrategy;
+import com.example.authdemo.model.UserProfileResponse;
+import com.example.authdemo.model.UserProfileUpdateRequest;
 import com.example.authdemo.repository.UserProfileRepository;
 import com.example.authdemo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,13 +22,14 @@ public class UserProfileService {
   private final UserRepository userRepository;
   private final LockStrategy lockStrategy;
 
-  public UserProfile getProfile(String username) {
-    return profileRepository.findByUserUsername(username)
+  public UserProfileResponse getProfile(String username) {
+    UserProfile profile = profileRepository.findByUserUsername(username)
         .orElseGet(() -> createDefaultProfile(username));
+    return UserProfileResponse.fromEntity(profile);
   }
 
   @Transactional
-  public UserProfile updateProfile(String username, UserProfile updatedData) {
+  public UserProfileResponse updateProfile(String username, UserProfileUpdateRequest updatedData) {
     String lockKey = "user:" + username;
 
     if (!lockStrategy.acquire(lockKey, 5000)) {
@@ -37,13 +40,14 @@ public class UserProfileService {
       UserProfile profile = profileRepository.findByUserUsername(username)
           .orElseGet(() -> createDefaultProfile(username));
 
-      profile.setFullName(updatedData.getFullName());
-      profile.setEmail(updatedData.getEmail());
-      profile.setPhoneNumber(updatedData.getPhoneNumber());
-      profile.setAddress(updatedData.getAddress());
+      profile.setFullName(updatedData.fullName());
+      profile.setEmail(updatedData.email());
+      profile.setPhoneNumber(updatedData.phoneNumber());
+      profile.setAddress(updatedData.address());
 
       log.info("Updating profile for user: {}", username);
-      return profileRepository.save(profile);
+      UserProfile saved = profileRepository.save(profile);
+      return UserProfileResponse.fromEntity(saved);
     } catch (OptimisticLockingFailureException e) {
       log.error("Optimistic lock failure for user {}: {}", username, e.getMessage());
       throw new RuntimeException("The profile was updated by another user. Please refresh and try again.");
