@@ -3,11 +3,9 @@ package com.example.authdemo.lock;
 import com.example.authdemo.repository.UserProfileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
-@Component
 @RequiredArgsConstructor
 public class PessimisticDbLockStrategy implements LockStrategy {
 

@@ -33,4 +33,4 @@ flyway.settings:
 
 app:
   lock:
-    type: advisory # Options: advisory (postgres), redis, pessimistic_db, none (optimistic)
+    type: redis # Options: advisory (postgres), redis, pessimistic_db, none (optimistic)
