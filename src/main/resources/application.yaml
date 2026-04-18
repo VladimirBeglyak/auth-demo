@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/jwtauthdb
+    username: jwtauth_user
+    password: secret_password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+
+jwt:
+  expiration: 900000              # 15 минут
+  refresh-expiration: 604800000   # 7 дней
+
+vault:
+  addr: http://localhost:8200
+  token: root-token-2026
+
+logging:
+  level:
+    org.flywaydb: DEBUG
+    org.springframework.boot.autoconfigure.flyway: DEBUG
+
+flyway.settings:
+  location: migration
+  baseLineOnMigrate: true
+  schema: public
