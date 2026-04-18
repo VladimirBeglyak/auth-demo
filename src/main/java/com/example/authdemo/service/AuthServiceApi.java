@@ -4,6 +4,7 @@ import com.example.authdemo.model.AuthResponse;
 import com.example.authdemo.model.LoginRequest;
 import com.example.authdemo.model.RefreshTokenRequest;
 import com.example.authdemo.model.RegisterRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,17 +20,6 @@ public class AuthServiceApi {
   private final UserService userService;
   private final JwtService jwtService;
   private final TokenBlacklistService blacklistService;
-
-  public void logout(String token) {
-    String jwt = token.substring(7);
-    long expirationTime = jwtService.extractExpiration(jwt).getTime();
-    long currentTime = System.currentTimeMillis();
-    long remainingTime = expirationTime - currentTime;
-
-    if (remainingTime > 0) {
-      blacklistService.blacklistToken(jwt, remainingTime);
-    }
-  }
 
   public ResponseEntity<AuthResponse> login(LoginRequest request) {
     authenticate(request.username(), request.password());
@@ -60,5 +50,24 @@ public class AuthServiceApi {
 
   private void authenticate(String username, String password) {
     authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+  }
+
+  public ResponseEntity<Void> logout(HttpServletRequest request) {
+    String authHeader = request.getHeader("Authorization");
+    if (authHeader != null && authHeader.startsWith("Bearer ")) {
+      logout(authHeader);
+    }
+    return ResponseEntity.ok().build();
+  }
+
+  private void logout(String token) {
+    String jwt = token.substring(7);
+    long expirationTime = jwtService.extractExpiration(jwt).getTime();
+    long currentTime = System.currentTimeMillis();
+    long remainingTime = expirationTime - currentTime;
+
+    if (remainingTime > 0) {
+      blacklistService.blacklistToken(jwt, remainingTime);
+    }
   }
 }

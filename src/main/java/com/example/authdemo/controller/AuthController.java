@@ -5,6 +5,7 @@ import com.example.authdemo.model.LoginRequest;
 import com.example.authdemo.model.RefreshTokenRequest;
 import com.example.authdemo.model.RegisterRequest;
 import com.example.authdemo.service.AuthServiceApi;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -36,11 +37,7 @@ public class AuthController {
   }
 
   @PostMapping("/logout")
-  public ResponseEntity<Void> logout(jakarta.servlet.http.HttpServletRequest request) {
-    String authHeader = request.getHeader("Authorization");
-    if (authHeader != null && authHeader.startsWith("Bearer ")) {
-      authServiceApi.logout(authHeader);
-    }
-    return ResponseEntity.ok().build();
+  public ResponseEntity<Void> logout(HttpServletRequest request) {
+    return authServiceApi.logout(request);
   }
 }
