@@ -1,6 +1,8 @@
 package com.example.authdemo.lock;
 
+import com.example.authdemo.entity.UserProfile;
 import com.example.authdemo.repository.UserProfileRepository;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,8 +19,8 @@ public class PessimisticDbLockStrategy implements LockStrategy {
     String username = lockKey.replace("user:", "");
     log.info("Acquiring DB pessimistic lock for user: {}", username);
 
-    profileRepository.findByUserUsernameWithLock(username);
-    return true;
+    Optional<UserProfile> profile = profileRepository.findByUserUsernameWithLock(username);
+    return profile.isPresent();
   }
 
   @Override
