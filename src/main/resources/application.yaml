@@ -30,3 +30,7 @@ flyway.settings:
   location: migration
   baseLineOnMigrate: true
   schema: public
+
+app:
+  lock:
+    type: advisory # Options: advisory (postgres), redis, pessimistic_db, none (optimistic)
