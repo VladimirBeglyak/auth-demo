@@ -18,6 +18,18 @@ public class AuthServiceApi {
   private final AuthenticationManager authenticationManager;
   private final UserService userService;
   private final JwtService jwtService;
+  private final TokenBlacklistService blacklistService;
+
+  public void logout(String token) {
+    String jwt = token.substring(7);
+    long expirationTime = jwtService.extractExpiration(jwt).getTime();
+    long currentTime = System.currentTimeMillis();
+    long remainingTime = expirationTime - currentTime;
+
+    if (remainingTime > 0) {
+      blacklistService.blacklistToken(jwt, remainingTime);
+    }
+  }
 
   public ResponseEntity<AuthResponse> login(LoginRequest request) {
     authenticate(request.username(), request.password());

@@ -1,6 +1,7 @@
 package com.example.authdemo.filter;
 
 import com.example.authdemo.service.JwtService;
+import com.example.authdemo.service.TokenBlacklistService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,6 +25,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private final JwtService jwtService;
   private final UserDetailsService userService;
+  private final TokenBlacklistService blacklistService;
 
   @Override
   protected void doFilterInternal(
@@ -39,6 +41,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     final String jwt = authHeader.substring(7);
+
+    if (blacklistService.isBlacklisted(jwt)) {
+      log.warn("Attempt to use blacklisted token: {}", jwt);
+      filterChain.doFilter(request, response);
+      return;
+    }
+
     final String tokenType;
     try {
       tokenType = jwtService.extractClaim(jwt, claims -> claims.get("type", String.class));
